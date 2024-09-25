@@ -92,7 +92,7 @@ pipeline {
         }
         stage ("Git checkout") {
             steps {
-                git branch: 'main', url: 'https://github.com/yeshwanthlm/Prime-Video-Clone-Deployment.git'
+                git branch: 'main', url: 'https://github.com/Fox-R-fox/Prime-Video-Clone-Deployment.git'
             }
         }
         stage("Sonarqube Analysis "){
@@ -132,29 +132,31 @@ pipeline {
             }
         }
         stage ("Tag & Push to DockerHub") {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag amazon-prime amonkincloud/amazon-prime:latest "
-                        sh "docker push amonkincloud/amazon-prime:latest "
-                    }
-                }
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'docker-cred') {  // Use 'docker-cred' here
+                sh "docker tag amazon-prime foxe03/amazon-prime:latest"
+                sh "docker push foxe03/amazon-prime:latest"
             }
         }
-        stage('Docker Scout Image') {
-            steps {
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh 'docker-scout quickview amonkincloud/amazon-prime:latest'
-                       sh 'docker-scout cves amonkincloud/amazon-prime:latest'
-                       sh 'docker-scout recommendations amonkincloud/amazon-prime:latest'
-                   }
-                }
+    }
+}
+
+stage('Docker Scout Image') {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {  // Use 'docker-cred' here too
+                sh 'docker-scout quickview foxe03/amazon-prime:latest'
+                sh 'docker-scout cves foxe03/amazon-prime:latest'
+                sh 'docker-scout recommendations foxe03/amazon-prime:latest'
             }
         }
+    }
+}
+
         stage ("Deploy to Conatiner") {
             steps {
-                sh 'docker run -d --name amazon-prime -p 3000:3000 amonkincloud/amazon-prime:latest'
+                sh 'docker run -d --name amazon-prime -p 3000:3000 foxe03/amazon-prime:latest'
             }
         }
     }
@@ -177,12 +179,13 @@ pipeline {
                 </body>
                 </html>
             """,
-            to: 'provide_your_Email_id_here',
+            to: 'rohansherkar22@gmail.com',
             mimeType: 'text/html',
             attachmentsPattern: 'trivy.txt'
         }
     }
 }
+
 
 ```
 **Phase 4: Monitoring**
